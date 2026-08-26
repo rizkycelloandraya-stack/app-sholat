@@ -6,7 +6,7 @@ import 'package:sholat_sigma/services/prayer_service.dart';
 void main() {
   group('ActivityMatcherService Tests', () {
     test('Matches Ashar prayer when photo timestamp is taken in Ashar window', () {
-      final date = DateTime(2026, 8, 26, 15, 42, 5); // 15:42:05
+      final date = DateTime(2026, 8, 26, 12, 0, 0);
       final schedule = PrayerService.calculateDailySchedule(
         date: date,
         latitude: -6.9175,
@@ -14,8 +14,11 @@ void main() {
         locationName: 'Bandung, Jawa Barat',
       );
 
+      final asharTime = schedule.getPrayer(PrayerType.ashar)!.time;
+      final photoTime = asharTime.add(const Duration(minutes: 10));
+
       final detected = ActivityMatcherService.detectActivity(
-        photoTimestamp: date,
+        photoTimestamp: photoTime,
         dailyPrayerSchedule: schedule,
       );
 
@@ -24,8 +27,8 @@ void main() {
       expect(detected.matchedPrayer, PrayerType.ashar);
     });
 
-    test('Matches Dzuhur prayer when photo is taken at 12:15', () {
-      final date = DateTime(2026, 8, 26, 12, 15, 0);
+    test('Matches Dzuhur prayer when photo is taken in Dzuhur window', () {
+      final date = DateTime(2026, 8, 26, 12, 0, 0);
       final schedule = PrayerService.calculateDailySchedule(
         date: date,
         latitude: -6.2088,
@@ -33,8 +36,11 @@ void main() {
         locationName: 'Jakarta Pusat',
       );
 
+      final dzuhurTime = schedule.getPrayer(PrayerType.dzuhur)!.time;
+      final photoTime = dzuhurTime.add(const Duration(minutes: 15));
+
       final detected = ActivityMatcherService.detectActivity(
-        photoTimestamp: date,
+        photoTimestamp: photoTime,
         dailyPrayerSchedule: schedule,
       );
 
@@ -43,8 +49,8 @@ void main() {
       expect(detected.matchedPrayer, PrayerType.dzuhur);
     });
 
-    test('Falls back to class activity when photo is taken at 10:00 AM (outside prayer)', () {
-      final date = DateTime(2026, 8, 26, 10, 0, 0);
+    test('Falls back to class activity when photo is taken outside prayer window', () {
+      final date = DateTime(2026, 8, 26, 12, 0, 0);
       final schedule = PrayerService.calculateDailySchedule(
         date: date,
         latitude: -6.2088,
@@ -52,8 +58,11 @@ void main() {
         locationName: 'Jakarta Pusat',
       );
 
+      final subuhTime = schedule.getPrayer(PrayerType.subuh)!.time;
+      final photoTime = subuhTime.add(const Duration(hours: 3, minutes: 30));
+
       final detected = ActivityMatcherService.detectActivity(
-        photoTimestamp: date,
+        photoTimestamp: photoTime,
         dailyPrayerSchedule: schedule,
       );
 
