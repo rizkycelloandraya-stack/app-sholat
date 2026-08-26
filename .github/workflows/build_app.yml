@@ -18,13 +18,12 @@ jobs:
       - name: Set up Java JDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: 'temurin'
           java-version: '17'
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.29.0'
           channel: 'stable'
           cache: true
 
@@ -53,7 +52,6 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.29.0'
           channel: 'stable'
           cache: true
 
@@ -62,12 +60,6 @@ jobs:
 
       - name: Run Tests
         run: flutter test
-
-      - name: Install CocoaPods
-        run: |
-          cd ios
-          pod install
-          cd ..
 
       - name: Build iOS App (Unsigned IPA for Sideloading)
         run: |
