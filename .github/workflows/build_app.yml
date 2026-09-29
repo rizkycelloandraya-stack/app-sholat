@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-android:
@@ -34,16 +34,23 @@ jobs:
       - name: Build APK Release
         run: flutter build apk --release
 
-      - name: Upload Android APK
+      - name: Upload Android APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: SholatSigma-Android-Release-APK
           path: build/app/outputs/flutter-apk/app-release.apk
 
+      - name: Publish Android APK to Release
+        uses: softprops/action-gh-release@v2
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        with:
+          tag_name: latest
+          name: "Sholat Sigma App (Latest Build)"
+          files: build/app/outputs/flutter-apk/app-release.apk
+
   build-ios:
     name: Build iOS IPA
-    runs-on: macos-latest
-    continue-on-error: true
+    runs-on: macos-14
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -57,6 +64,12 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
+      - name: Install Pods
+        run: |
+          cd ios
+          pod install --repo-update
+          cd ..
+
       - name: Build iOS App (Unsigned IPA for Sideloading)
         run: |
           flutter build ios --release --no-codesign
@@ -64,8 +77,16 @@ jobs:
           cp -r build/ios/iphoneos/Runner.app Payload/
           zip -r SholatSigma-iOS.ipa Payload
 
-      - name: Upload iOS IPA
+      - name: Upload iOS IPA Artifact
         uses: actions/upload-artifact@v4
         with:
           name: SholatSigma-iOS-Release-IPA
           path: SholatSigma-iOS.ipa
+
+      - name: Publish iOS IPA to Release
+        uses: softprops/action-gh-release@v2
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        with:
+          tag_name: latest
+          name: "Sholat Sigma App (Latest Build)"
+          files: SholatSigma-iOS.ipa
