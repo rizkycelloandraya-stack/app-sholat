@@ -50,7 +50,7 @@ jobs:
 
   build-ios:
     name: Build iOS IPA
-    runs-on: macos-14
+    runs-on: macos-13
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -59,16 +59,9 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          cache: true
 
       - name: Get dependencies
         run: flutter pub get
-
-      - name: Install Pods
-        run: |
-          cd ios
-          pod install --repo-update
-          cd ..
 
       - name: Build iOS App (Unsigned IPA for Sideloading)
         run: |
