@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="Sholat Sigma - Class Prayer Tracker and 3-Photo Activity Documentation App">
+
+  <!-- iOS meta tags & icons for Add to Home Screen -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Sholat Sigma">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>Sholat Sigma</title>
+  <link rel="manifest" href="manifest.json">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0D7C66">
+
+  <style>
+    body {
+      background-color: #0F172A;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    #loading-indicator {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at center, #1E293B 0%, #0F172A 100%);
+      color: #FFFFFF;
+      transition: opacity 0.5s ease-out;
+      z-index: 99999;
+    }
+    .app-logo {
+      width: 76px;
+      height: 76px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(13, 124, 102, 0.4);
+      margin-bottom: 24px;
+      border: 2px solid rgba(65, 179, 162, 0.3);
+    }
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 3.5px solid rgba(13, 124, 102, 0.25);
+      border-top-color: #41B3A2;
+      border-radius: 50%;
+      animation: spin 0.9s cubic-bezier(0.6, 0.2, 0.4, 0.8) infinite;
+    }
+    .loading-text {
+      margin-top: 18px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      color: #E2E8F0;
+    }
+    .loading-subtext {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #94A3B8;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div id="loading-indicator">
+    <img src="icons/Icon-192.png" alt="Logo" class="app-logo">
+    <div class="spinner"></div>
+    <div class="loading-text">SHOLAT SIGMA</div>
+    <div class="loading-subtext">Menyiapkan Jadwal & Dokumentasi...</div>
+  </div>
+
+  <script>
+    window.addEventListener('flutter-first-frame', function () {
+      var loader = document.getElementById('loading-indicator');
+      if (loader) {
+        loader.style.opacity = '0';
+        setTimeout(function() { loader.remove(); }, 500);
+      }
+    });
+  </script>
+
+  {{flutter_bootstrap_js}}
+</body>
+</html>

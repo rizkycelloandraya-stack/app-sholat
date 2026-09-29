@@ -1,4 +1,4 @@
-name: Build iOS & Android Apps
+name: Build iOS, Android & Web Apps
 
 on:
   push:
@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 
 jobs:
   build-android:
@@ -73,3 +78,38 @@ jobs:
         with:
           name: SholatSigma-iOS-Release-IPA
           path: SholatSigma-iOS.ipa
+
+  build-web:
+    name: Build & Deploy Web PWA
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Run Tests
+        run: flutter test
+
+      - name: Build Web PWA Release
+        run: flutter build web --release --base-href ./
+
+      - name: Upload Web PWA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SholatSigma-Web-PWA
+          path: build/web
+
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: build/web
+          branch: gh-pages

@@ -1,5 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
+import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import '../models/photo_capture.dart';
 import '../utils/time_utils.dart';
@@ -181,7 +184,12 @@ class CollageService {
     // 7. Compress to high quality JPEG
     final jpegBytes = img.encodeJpg(canvas, quality: 90);
 
-    // 8. Save to storage
+    // 8. On Web: return Data URL
+    if (kIsWeb) {
+      return 'data:image/jpeg;base64,${base64Encode(jpegBytes)}';
+    }
+
+    // 9. On Mobile/Desktop: Save to local directory
     final appDir = await getApplicationDocumentsDirectory();
     final collagesDir = Directory('${appDir.path}/collages');
     if (!collagesDir.existsSync()) {
@@ -347,7 +355,18 @@ class CollageService {
     int maxWidth,
     int maxHeight,
   ) async {
-    final bytes = await File(path).readAsBytes();
+    Uint8List bytes;
+    if (path.startsWith('data:image')) {
+      final commaIndex = path.indexOf(',');
+      final base64Str = commaIndex != -1 ? path.substring(commaIndex + 1) : path;
+      bytes = base64Decode(base64Str);
+    } else if (kIsWeb || path.startsWith('blob:') || path.startsWith('http')) {
+      final xFile = XFile(path);
+      bytes = await xFile.readAsBytes();
+    } else {
+      bytes = await File(path).readAsBytes();
+    }
+
     final decoded = img.decodeImage(bytes);
     if (decoded == null) {
       throw Exception('Gagal membaca format gambar dari $path');

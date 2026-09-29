@@ -1,5 +1,5 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
+import 'app_image_view.dart';
 
 class CollagePreviewWidget extends StatelessWidget {
   final String imagePath;
@@ -13,9 +13,7 @@ class CollagePreviewWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final file = File(imagePath);
-
-    if (!file.existsSync()) {
+    if (imagePath.isEmpty) {
       return Container(
         height: 320,
         decoration: BoxDecoration(
@@ -46,10 +44,10 @@ class CollagePreviewWidget extends StatelessWidget {
               ),
             ],
           ),
-          child: Image.file(
-            file,
+          child: AppImageView(
+            imagePath: imagePath,
             fit: BoxFit.contain,
-            errorBuilder: (context, error, stackTrace) => Container(
+            errorWidget: Container(
               height: 300,
               color: Colors.grey.shade800,
               child: const Center(

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 class DocumentationItem {
   final String id;
@@ -34,7 +35,16 @@ class DocumentationItem {
     required this.createdAt,
   });
 
-  bool get collageExists => File(collageImagePath).existsSync();
+  bool get collageExists {
+    if (kIsWeb || collageImagePath.startsWith('data:') || collageImagePath.startsWith('blob:') || collageImagePath.startsWith('http')) {
+      return collageImagePath.isNotEmpty;
+    }
+    try {
+      return File(collageImagePath).existsSync();
+    } catch (_) {
+      return collageImagePath.isNotEmpty;
+    }
+  }
 
   Map<String, dynamic> toMap() {
     return {

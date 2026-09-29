@@ -1,8 +1,8 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
 import '../utils/time_utils.dart';
+import '../widgets/app_image_view.dart';
 import 'history_detail_screen.dart';
 
 class HistoryScreen extends StatelessWidget {
@@ -79,15 +79,9 @@ class HistoryScreen extends StatelessWidget {
                                   width: 72,
                                   height: 96,
                                   color: Colors.black12,
-                                  child: Image.file(
-                                    File(item.collageImagePath),
+                                  child: AppImageView(
+                                    imagePath: item.collageImagePath,
                                     fit: BoxFit.cover,
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            const Icon(
-                                      Icons.broken_image_rounded,
-                                      color: Colors.grey,
-                                    ),
                                   ),
                                 ),
                               ),

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -13,6 +14,11 @@ class NotificationService {
 
   /// Initialize local notification plugin and timezones
   static Future<void> initialize() async {
+    if (kIsWeb) {
+      _isInitialized = true;
+      return;
+    }
+
     if (_isInitialized) return;
 
     try {
@@ -44,6 +50,7 @@ class NotificationService {
 
   /// Request permissions for notifications
   static Future<bool> requestPermissions() async {
+    if (kIsWeb) return true;
     await initialize();
     return await PermissionUtils.requestNotificationPermissions(
         _notificationsPlugin);
@@ -54,6 +61,8 @@ class NotificationService {
     required DailyPrayerSchedule schedule,
     required AppSettings settings,
   }) async {
+    if (kIsWeb) return;
+
     await initialize();
 
     try {

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:share_plus/share_plus.dart';
@@ -40,16 +41,50 @@ class SharingService {
     return buffer.toString().trim();
   }
 
-  /// Trigger native OS share sheet with collage image and caption
+  /// Trigger native OS / Web share sheet with collage image and caption
   static Future<bool> shareDocumentation(DocumentationItem item) async {
     try {
+      final caption = formatCaption(item);
+
+      if (kIsWeb || item.collageImagePath.startsWith('data:image')) {
+        XFile? xFile;
+        if (item.collageImagePath.startsWith('data:image')) {
+          final commaIndex = item.collageImagePath.indexOf(',');
+          final base64Str = commaIndex != -1
+              ? item.collageImagePath.substring(commaIndex + 1)
+              : item.collageImagePath;
+          final bytes = base64Decode(base64Str);
+          xFile = XFile.fromData(
+            bytes,
+            mimeType: 'image/jpeg',
+            name: 'sholat_sigma_${item.timestamp.millisecondsSinceEpoch}.jpg',
+          );
+        }
+
+        if (xFile != null) {
+          final result = await Share.shareXFiles(
+            [xFile],
+            text: caption,
+            subject: item.title,
+          );
+          return result.status == ShareResultStatus.success ||
+              result.status == ShareResultStatus.dismissed;
+        } else {
+          final result = await Share.share(
+            caption,
+            subject: item.title,
+          );
+          return result.status == ShareResultStatus.success ||
+              result.status == ShareResultStatus.dismissed;
+        }
+      }
+
       final file = File(item.collageImagePath);
       if (!await file.exists()) {
         debugPrint('File kolase tidak ditemukan di ${item.collageImagePath}');
         return false;
       }
 
-      final caption = formatCaption(item);
       final xFile = XFile(item.collageImagePath, mimeType: 'image/jpeg');
 
       final result = await Share.shareXFiles(

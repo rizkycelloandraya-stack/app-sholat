@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -6,6 +5,7 @@ import '../providers/app_provider.dart';
 import '../providers/documentation_provider.dart';
 import '../models/photo_capture.dart';
 import '../utils/time_utils.dart';
+import '../widgets/app_image_view.dart';
 import 'preview_screen.dart';
 
 class DocumentationScreen extends StatefulWidget {
@@ -475,8 +475,8 @@ class _DocumentationScreenState extends State<DocumentationScreen> {
             child: hasPhoto
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(11),
-                    child: Image.file(
-                      File(photo.filePath),
+                    child: AppImageView(
+                      imagePath: photo.filePath,
                       fit: BoxFit.cover,
                     ),
                   )

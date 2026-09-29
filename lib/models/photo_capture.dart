@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 class PhotoCapture {
   final int shotIndex; // 1 (Subuh), 2 (Maghrib), or 3 (Isya)
@@ -13,9 +14,18 @@ class PhotoCapture {
     this.prayerName = '',
   });
 
-  File get file => File(filePath);
+  File? get file => kIsWeb ? null : File(filePath);
 
-  bool get exists => File(filePath).existsSync();
+  bool get exists {
+    if (kIsWeb || filePath.startsWith('data:') || filePath.startsWith('blob:') || filePath.startsWith('http')) {
+      return filePath.isNotEmpty;
+    }
+    try {
+      return File(filePath).existsSync();
+    } catch (_) {
+      return filePath.isNotEmpty;
+    }
+  }
 
   Map<String, dynamic> toJson() => {
         'shotIndex': shotIndex,

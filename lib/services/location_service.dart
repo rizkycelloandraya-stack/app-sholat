@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 
@@ -94,6 +95,14 @@ class LocationService {
     required double latitude,
     required double longitude,
   }) async {
+    if (kIsWeb) {
+      return {
+        'readableName': defaultLocationName,
+        'districtProvince': defaultDistrictProvince,
+        'fullAddress': defaultFullAddress,
+      };
+    }
+
     try {
       final placemarks = await placemarkFromCoordinates(
         latitude,
