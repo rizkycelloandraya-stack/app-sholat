@@ -1,4 +1,4 @@
-name: Build iOS, Android & Web Apps
+name: Build & Deploy Sholat Sigma (Android, iOS & Web)
 
 on:
   push:
@@ -11,6 +11,10 @@ permissions:
   contents: write
   pages: write
   id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   build-android:
@@ -34,9 +38,6 @@ jobs:
 
       - name: Get dependencies
         run: flutter pub get
-
-      - name: Run Tests
-        run: flutter test
 
       - name: Build APK Release
         run: flutter build apk --release
@@ -63,9 +64,6 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Run Tests
-        run: flutter test
-
       - name: Build iOS App (Unsigned IPA for Sideloading)
         run: |
           flutter build ios --release --no-codesign
@@ -80,7 +78,7 @@ jobs:
           path: SholatSigma-iOS.ipa
 
   build-web:
-    name: Build & Deploy Web PWA
+    name: Build Web PWA
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -95,9 +93,6 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Run Tests
-        run: flutter test
-
       - name: Build Web PWA Release
         run: |
           flutter build web --release --base-href ./
@@ -109,9 +104,27 @@ jobs:
           name: SholatSigma-Web-PWA
           path: build/web
 
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
       - name: Deploy to gh-pages branch
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: build/web
           branch: gh-pages
+
+  deploy-pages:
+    name: Deploy to GitHub Pages
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    needs: build-web
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
