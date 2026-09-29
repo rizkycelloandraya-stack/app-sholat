@@ -107,17 +107,6 @@ jobs:
           name: SholatSigma-Web-PWA
           path: build/web
 
-      - name: Upload Pages Artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: build/web
-
-      - name: Deploy to GitHub Pages Natively
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        id: deployment
-        uses: actions/deploy-pages@v4
-        continue-on-error: true
-
       - name: Deploy to gh-pages branch
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         uses: JamesIves/github-pages-deploy-action@v4
