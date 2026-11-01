@@ -219,7 +219,7 @@ class _DocumentationScreenState extends State<DocumentationScreen> {
                             controller: _nameController,
                             decoration: InputDecoration(
                               labelText: 'Nama Lengkap Siswa / Pelapor *',
-                              hintText: 'Contoh: Ahmad Fauzan (Kelas 7A)',
+                              hintText: 'Contoh: Ahmad Fauzan',
                               prefixIcon: const Icon(Icons.person_rounded, size: 20),
                               isDense: true,
                               border: OutlineInputBorder(

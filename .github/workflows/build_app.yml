@@ -32,13 +32,17 @@ jobs:
         run: flutter pub get
 
       - name: Build APK Release
-        run: flutter build apk --release
+        run: |
+          flutter build apk --release
+          cp build/app/outputs/flutter-apk/app-release.apk Sholat-Sigma.apk
 
       - name: Upload Android APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: SholatSigma-Android-Release-APK
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: |
+            Sholat-Sigma.apk
+            build/app/outputs/flutter-apk/app-release.apk
 
       - name: Publish Android APK to Release
         uses: softprops/action-gh-release@v2
@@ -46,11 +50,14 @@ jobs:
         with:
           tag_name: latest
           name: "Sholat Sigma App (Latest Build)"
-          files: build/app/outputs/flutter-apk/app-release.apk
+          files: |
+            Sholat-Sigma.apk
+            build/app/outputs/flutter-apk/app-release.apk
 
   build-ios:
     name: Build iOS IPA
-    runs-on: macos-13
+    runs-on: macos-latest
+    continue-on-error: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

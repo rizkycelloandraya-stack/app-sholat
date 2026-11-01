@@ -58,6 +58,11 @@ class TimeUtils {
     return '$day $monthName $year';
   }
 
+  /// Format: "31/10/2026" (dd/MM/yyyy)
+  static String formatDateSlash(DateTime date) {
+    return DateFormat('dd/MM/yyyy').format(date);
+  }
+
   /// Format: "15:42" (24-hour)
   static String formatTime(DateTime time) {
     return DateFormat('HH:mm').format(time);

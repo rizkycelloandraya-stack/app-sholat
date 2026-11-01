@@ -6,37 +6,34 @@ import '../models/documentation_item.dart';
 import '../utils/time_utils.dart';
 
 class SharingService {
-  /// Format the standard WhatsApp caption text with Student Name, Date, Location, Notes & 3-Prayer breakdown
+  /// Format the standard WhatsApp caption text:
+  /// 10B | nama orang | 31/10/2026
+  ///
+  /// Subuh: 04:31
+  /// Maghrib: 18:31
+  /// Isya: 19:59
   static String formatCaption(DocumentationItem item) {
-    final dateStr = TimeUtils.formatDateIndonesian(item.timestamp);
-    final locationStr = item.locationName.isNotEmpty
-        ? item.locationName
-        : 'Lokasi tidak tersedia';
+    final dateStr = TimeUtils.formatDateSlash(item.timestamp);
+    final nameStr = item.studentName.trim().isNotEmpty
+        ? item.studentName.trim()
+        : '-';
+
+    final subuhTime = item.photoTimestamps.isNotEmpty
+        ? TimeUtils.formatTime(item.photoTimestamps[0])
+        : '-';
+    final maghribTime = item.photoTimestamps.length > 1
+        ? TimeUtils.formatTime(item.photoTimestamps[1])
+        : '-';
+    final isyaTime = item.photoTimestamps.length > 2
+        ? TimeUtils.formatTime(item.photoTimestamps[2])
+        : '-';
 
     final buffer = StringBuffer();
-    buffer.writeln('🕌 *SHOLAT SIGMA - DOKUMENTASI SHOLAT 3 WAKTU*');
+    buffer.writeln('10B | $nameStr | $dateStr');
     buffer.writeln();
-    if (item.studentName.isNotEmpty) {
-      buffer.writeln('👤 *Nama*: ${item.studentName}');
-    }
-    buffer.writeln('📅 *Tanggal*: $dateStr');
-    buffer.writeln('📍 *Tempat/Lokasi*: $locationStr');
-
-    if (item.description.isNotEmpty && item.description != item.title) {
-      buffer.writeln('📝 *Keterangan*: ${item.description}');
-    }
-
-    buffer.writeln();
-    buffer.writeln('📸 *Rincian Foto Sholat:*');
-    if (item.photoTimestamps.isNotEmpty) {
-      buffer.writeln('1. Sholat Subuh: ${TimeUtils.formatTime(item.photoTimestamps[0])} WIB');
-    }
-    if (item.photoTimestamps.length > 1) {
-      buffer.writeln('2. Sholat Maghrib: ${TimeUtils.formatTime(item.photoTimestamps[1])} WIB');
-    }
-    if (item.photoTimestamps.length > 2) {
-      buffer.writeln('3. Sholat Isya: ${TimeUtils.formatTime(item.photoTimestamps[2])} WIB');
-    }
+    buffer.writeln('Subuh: $subuhTime');
+    buffer.writeln('Maghrib: $maghribTime');
+    buffer.writeln('Isya: $isyaTime');
 
     return buffer.toString().trim();
   }

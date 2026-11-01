@@ -4,6 +4,7 @@ import '../models/documentation_item.dart';
 import '../providers/app_provider.dart';
 import '../services/sharing_service.dart';
 import '../utils/time_utils.dart';
+import '../widgets/app_image_view.dart';
 import '../widgets/collage_preview_widget.dart';
 import '../widgets/confirm_delete_dialog.dart';
 
@@ -88,7 +89,10 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
                       ),
                       body: Center(
                         child: InteractiveViewer(
-                          child: Image.file(File(item.collageImagePath)),
+                          child: AppImageView(
+                            imagePath: item.collageImagePath,
+                            fit: BoxFit.contain,
+                          ),
                         ),
                       ),
                     ),
