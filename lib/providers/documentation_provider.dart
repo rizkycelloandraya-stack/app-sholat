@@ -44,24 +44,59 @@ class DocumentationProvider extends ChangeNotifier {
   PhotoCapture? get maghribPhoto => _slots[1];
   PhotoCapture? get isyaPhoto => _slots[2];
 
-  /// Initialize provider with default values and stored student name
+  /// Initialize provider with default values, stored student name, and saved draft slots
   Future<void> init(String defaultLocation) async {
-    _locationName = defaultLocation;
+    _state = DocWorkflowState.ready;
+    _errorMessage = null;
+
     final savedName = await StorageService.loadDefaultStudentName();
     if (savedName.isNotEmpty) {
       _studentName = savedName;
     }
+
+    final draft = await StorageService.loadDraftSession();
+    if (draft != null) {
+      final loadedSlots = draft['slots'] as List<PhotoCapture?>?;
+      if (loadedSlots != null && loadedSlots.length == 3) {
+        _slots[0] = loadedSlots[0];
+        _slots[1] = loadedSlots[1];
+        _slots[2] = loadedSlots[2];
+      }
+      final draftName = (draft['studentName'] as String? ?? '').trim();
+      if (draftName.isNotEmpty) {
+        _studentName = draftName;
+      }
+      final draftLocation = (draft['locationName'] as String? ?? '').trim();
+      _locationName = draftLocation.isNotEmpty ? draftLocation : defaultLocation;
+      _editingDescription = draft['description'] as String? ?? '';
+    } else {
+      if (_locationName.isEmpty) {
+        _locationName = defaultLocation;
+      }
+    }
+
     notifyListeners();
+  }
+
+  Future<void> _persistDraft() async {
+    await StorageService.saveDraftSession(
+      slots: _slots,
+      studentName: _studentName,
+      locationName: _locationName,
+      description: _editingDescription,
+    );
   }
 
   void setStudentName(String val) {
     _studentName = val;
     notifyListeners();
+    _persistDraft();
   }
 
   void setLocationName(String val) {
     _locationName = val;
     notifyListeners();
+    _persistDraft();
   }
 
   void setEditingTitle(String val) {
@@ -72,10 +107,11 @@ class DocumentationProvider extends ChangeNotifier {
   void setEditingDescription(String val) {
     _editingDescription = val;
     notifyListeners();
+    _persistDraft();
   }
 
   /// Reset capture state for a fresh documentation session
-  void reset() {
+  Future<void> reset() async {
     _slots[0] = null;
     _slots[1] = null;
     _slots[2] = null;
@@ -84,28 +120,39 @@ class DocumentationProvider extends ChangeNotifier {
     _lastGeneratedItem = null;
     _editingDescription = '';
     notifyListeners();
+    await StorageService.clearDraftSession();
   }
 
   /// Set photo for a specific prayer slot (0 = Subuh, 1 = Maghrib, 2 = Isya)
-  void setPhotoForSlot(int slotIndex, String filePath, {DateTime? timestamp}) {
+  /// Automatically copies photo to permanent storage so it survives RAM eviction.
+  Future<void> setPhotoForSlot(int slotIndex, String filePath, {DateTime? timestamp}) async {
     if (slotIndex < 0 || slotIndex > 2) return;
 
+    final captureTime = timestamp ?? DateTime.now();
     final prayerNames = ['Subuh', 'Maghrib', 'Isya'];
+
+    final permanentPath = await StorageService.persistDraftSlotPhoto(
+      slotIndex,
+      filePath,
+    );
+
     _slots[slotIndex] = PhotoCapture(
       shotIndex: slotIndex + 1,
-      filePath: filePath,
-      timestamp: timestamp ?? DateTime.now(),
+      filePath: permanentPath,
+      timestamp: captureTime,
       prayerName: prayerNames[slotIndex],
     );
 
     notifyListeners();
+    await _persistDraft();
   }
 
   /// Remove photo from a specific slot
-  void removePhotoForSlot(int slotIndex) {
+  Future<void> removePhotoForSlot(int slotIndex) async {
     if (slotIndex >= 0 && slotIndex <= 2) {
       _slots[slotIndex] = null;
       notifyListeners();
+      await _persistDraft();
     }
   }
 
@@ -113,7 +160,7 @@ class DocumentationProvider extends ChangeNotifier {
   Future<bool> addPhotoCapture(String filePath) async {
     for (int i = 0; i < 3; i++) {
       if (_slots[i] == null) {
-        setPhotoForSlot(i, filePath);
+        await setPhotoForSlot(i, filePath);
         return isAllSlotsFilled;
       }
     }
@@ -121,11 +168,12 @@ class DocumentationProvider extends ChangeNotifier {
   }
 
   /// Retake the most recent photo capture
-  void retakeLastPhoto() {
+  Future<void> retakeLastPhoto() async {
     for (int i = 2; i >= 0; i--) {
       if (_slots[i] != null) {
         _slots[i] = null;
         notifyListeners();
+        await _persistDraft();
         break;
       }
     }

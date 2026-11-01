@@ -27,7 +27,6 @@ class _DocumentationScreenState extends State<DocumentationScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final appProvider = context.read<AppProvider>();
       final docProvider = context.read<DocumentationProvider>();
-      docProvider.reset();
       docProvider.init(appProvider.locationName).then((_) {
         if (mounted) {
           _nameController.text = docProvider.studentName;
@@ -57,7 +56,7 @@ class _DocumentationScreenState extends State<DocumentationScreen> {
 
       if (picked != null && mounted) {
         final docProvider = context.read<DocumentationProvider>();
-        docProvider.setPhotoForSlot(
+        await docProvider.setPhotoForSlot(
           slotIndex,
           picked.path,
           timestamp: DateTime.now(),
@@ -139,6 +138,40 @@ class _DocumentationScreenState extends State<DocumentationScreen> {
               ),
             ),
             actions: [
+              if (currentCount > 0)
+                IconButton(
+                  icon: const Icon(Icons.delete_sweep_rounded, color: Colors.redAccent),
+                  tooltip: 'Kosongkan Semua Foto',
+                  onPressed: () async {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text('Kosongkan Semua Foto?'),
+                        content: const Text(
+                          'Ketiga slot foto (Subuh, Maghrib, Isya) akan dikosongkan untuk sesi baru.',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(ctx).pop(false),
+                            child: const Text('Batal'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () => Navigator.of(ctx).pop(true),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.redAccent,
+                              foregroundColor: Colors.white,
+                            ),
+                            child: const Text('Kosongkan'),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (confirm == true && mounted) {
+                      await docProvider.reset();
+                      _notesController.clear();
+                    }
+                  },
+                ),
               Container(
                 margin: const EdgeInsets.only(right: 16),
                 padding:
