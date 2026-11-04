@@ -5,6 +5,7 @@ import '../providers/app_provider.dart';
 import '../services/sharing_service.dart';
 import '../utils/time_utils.dart';
 import '../widgets/collage_preview_widget.dart';
+import '../widgets/particle_3d_background.dart';
 
 class PreviewScreen extends StatefulWidget {
   final DocumentationItem item;
@@ -100,30 +101,25 @@ class _PreviewScreenState extends State<PreviewScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Generated Collage Preview
-            CollagePreviewWidget(
-              imagePath: _currentItem.collageImagePath,
-            ),
-            const SizedBox(height: 16),
-
-            // Metadata card
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1C2422) : Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: isDark
-                      ? const Color(0xFF2A3633)
-                      : const Color(0xFFE2E8F0),
-                ),
+      body: Particle3DBackground(
+        particleCount: 65,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Generated Collage Preview
+              CollagePreviewWidget(
+                imagePath: _currentItem.collageImagePath,
               ),
-              child: Column(
+              const SizedBox(height: 16),
+
+              // Metadata 3D Glass card
+              Glass3DCard(
+                enableTilt: false,
+                padding: const EdgeInsets.all(16),
+                borderRadius: 18,
+                child: Column(
                 children: [
                   if (_currentItem.studentName.isNotEmpty) ...[
                     Row(
@@ -258,6 +254,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
             ),
             const SizedBox(height: 32),
           ],
+        ),
         ),
       ),
     );

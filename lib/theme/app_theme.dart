@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  static const Color primaryGreen = Color(0xFF0D7C66); // Rich modern Islamic emerald
-  static const Color primaryGreenDark = Color(0xFF075E54);
-  static const Color accentSage = Color(0xFF41B3A2);
-  static const Color accentGold = Color(0xFFEBB057);
-  static const Color surfaceLight = Color(0xFFF7F9FA);
-  static const Color surfaceDark = Color(0xFF121816);
-  static const Color cardDark = Color(0xFF1C2422);
+  static const Color primaryGreen = Color(0xFF10B981); // Neon 3D Emerald
+  static const Color primaryGreenDark = Color(0xFF059669);
+  static const Color accentSage = Color(0xFF2DD4BF); // Cyber 3D Teal
+  static const Color accentGold = Color(0xFFFBBF24);
+  static const Color surfaceLight = Color(0xFFECFDF5);
+  static const Color surfaceDark = Color(0xFF050D10);
+  static const Color cardDark = Color(0xCC112222);
 
   static ThemeData get lightTheme {
     final colorScheme = ColorScheme.fromSeed(

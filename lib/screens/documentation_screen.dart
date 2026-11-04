@@ -6,6 +6,7 @@ import '../providers/documentation_provider.dart';
 import '../models/photo_capture.dart';
 import '../utils/time_utils.dart';
 import '../widgets/app_image_view.dart';
+import '../widgets/particle_3d_background.dart';
 import 'preview_screen.dart';
 
 class DocumentationScreen extends StatefulWidget {
@@ -191,32 +192,20 @@ class _DocumentationScreenState extends State<DocumentationScreen> {
               ),
             ],
           ),
-          body: Stack(
+          body: Particle3DBackground(
+            particleCount: 70,
+            child: Stack(
             children: [
               SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Information / Form Card
-                    Container(
+                    // Information / Form 3D Glass Card
+                    Glass3DCard(
+                      enableTilt: false,
                       padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF1E2927) : Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: isDark
-                              ? const Color(0xFF2A3A36)
-                              : const Color(0xFFE2E8F0),
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.04),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
+                      borderRadius: 20,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -225,12 +214,12 @@ class _DocumentationScreenState extends State<DocumentationScreen> {
                               Container(
                                 padding: const EdgeInsets.all(6),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF0D7C66).withValues(alpha: 0.15),
+                                  color: const Color(0xFF10B981).withValues(alpha: 0.2),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: const Icon(
                                   Icons.badge_rounded,
-                                  color: Color(0xFF0D7C66),
+                                  color: Color(0xFF2DD4BF),
                                   size: 18,
                                 ),
                               ),
@@ -457,6 +446,7 @@ class _DocumentationScreenState extends State<DocumentationScreen> {
                 ),
             ],
           ),
+          ),
         );
       },
     );
@@ -476,18 +466,10 @@ class _DocumentationScreenState extends State<DocumentationScreen> {
   }) {
     final hasPhoto = photo != null;
 
-    return Container(
+    return Glass3DCard(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E2927) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: hasPhoto
-              ? const Color(0xFF0D7C66)
-              : (isDark ? const Color(0xFF2A3A36) : const Color(0xFFE2E8F0)),
-          width: hasPhoto ? 1.8 : 1.0,
-        ),
-      ),
+      borderRadius: 18,
+      glowColor: hasPhoto ? const Color(0xFF10B981) : accentColor,
       child: Row(
         children: [
           // Photo Thumbnail or Placeholder Icon

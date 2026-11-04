@@ -7,6 +7,7 @@ import '../utils/time_utils.dart';
 import '../widgets/app_image_view.dart';
 import '../widgets/collage_preview_widget.dart';
 import '../widgets/confirm_delete_dialog.dart';
+import '../widgets/particle_3d_background.dart';
 
 class HistoryDetailScreen extends StatefulWidget {
   final DocumentationItem item;
@@ -69,52 +70,47 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Full Collage Viewer
-            CollagePreviewWidget(
-              imagePath: item.collageImagePath,
-              onTap: () {
-                // Open full-screen viewer if tapped
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => Scaffold(
-                      backgroundColor: Colors.black,
-                      appBar: AppBar(
+      body: Particle3DBackground(
+        particleCount: 65,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Full Collage Viewer
+              CollagePreviewWidget(
+                imagePath: item.collageImagePath,
+                onTap: () {
+                  // Open full-screen viewer if tapped
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => Scaffold(
                         backgroundColor: Colors.black,
-                        iconTheme: const IconThemeData(color: Colors.white),
-                      ),
-                      body: Center(
-                        child: InteractiveViewer(
-                          child: AppImageView(
-                            imagePath: item.collageImagePath,
-                            fit: BoxFit.contain,
+                        appBar: AppBar(
+                          backgroundColor: Colors.black,
+                          iconTheme: const IconThemeData(color: Colors.white),
+                        ),
+                        body: Center(
+                          child: InteractiveViewer(
+                            child: AppImageView(
+                              imagePath: item.collageImagePath,
+                              fit: BoxFit.contain,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 20),
-
-            // Metadata card
-            Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1C2422) : Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: isDark
-                      ? const Color(0xFF2A3633)
-                      : const Color(0xFFE2E8F0),
-                ),
+                  );
+                },
               ),
-              child: Column(
+              const SizedBox(height: 20),
+
+              // Metadata 3D Glass card
+              Glass3DCard(
+                enableTilt: false,
+                padding: const EdgeInsets.all(18),
+                borderRadius: 20,
+                child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
@@ -246,6 +242,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
             ),
             const SizedBox(height: 32),
           ],
+        ),
         ),
       ),
     );

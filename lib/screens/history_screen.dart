@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
 import '../utils/time_utils.dart';
 import '../widgets/app_image_view.dart';
+import '../widgets/particle_3d_background.dart';
 import 'history_detail_screen.dart';
 
 class HistoryScreen extends StatelessWidget {
@@ -21,8 +22,10 @@ class HistoryScreen extends StatelessWidget {
           appBar: AppBar(
             title: const Text('Riwayat Dokumentasi'),
           ),
-          body: history.isEmpty
-              ? Center(
+          body: Particle3DBackground(
+            particleCount: 65,
+            child: history.isEmpty
+                ? Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -57,20 +60,19 @@ class HistoryScreen extends StatelessWidget {
                         TimeUtils.formatDateIndonesian(item.timestamp);
                     final timeStr = TimeUtils.formatTime(item.timestamp);
 
-                    return Card(
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(20),
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  HistoryDetailScreen(item: item),
-                            ),
-                          );
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Row(
+                    return Glass3DCard(
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                      padding: const EdgeInsets.all(12),
+                      borderRadius: 20,
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                HistoryDetailScreen(item: item),
+                          ),
+                        );
+                      },
+                      child: Row(
                             children: [
                               // Collage Thumbnail
                               ClipRRect(
@@ -153,15 +155,14 @@ class HistoryScreen extends StatelessWidget {
                               // Trailing arrow
                               const Icon(
                                 Icons.chevron_right_rounded,
-                                color: Colors.grey,
+                                color: Color(0xFF5EEAD4),
                               ),
                             ],
                           ),
-                        ),
-                      ),
                     );
                   },
                 ),
+          ),
         );
       },
     );

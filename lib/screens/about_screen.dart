@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/particle_3d_background.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -12,9 +13,11 @@ class AboutScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Tentang Sholat Sigma'),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-        child: Column(
+      body: Particle3DBackground(
+        particleCount: 65,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          child: Column(
           children: [
             // App Icon & Title
             Container(
@@ -178,6 +181,7 @@ class AboutScreen extends StatelessWidget {
             ),
             const SizedBox(height: 32),
           ],
+        ),
         ),
       ),
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/app_settings.dart';
 import '../providers/app_provider.dart';
+import '../widgets/particle_3d_background.dart';
 import 'about_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -20,9 +21,11 @@ class SettingsScreen extends StatelessWidget {
           appBar: AppBar(
             title: const Text('Pengaturan'),
           ),
-          body: ListView(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            children: [
+          body: Particle3DBackground(
+            particleCount: 65,
+            child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              children: [
               // ================= PRAYER SECTION =================
               _buildSectionHeader('PENGINGAT & ALARM SHOLAT', isDark),
               Card(
@@ -340,6 +343,7 @@ class SettingsScreen extends StatelessWidget {
 
               const SizedBox(height: 32),
             ],
+          ),
           ),
         );
       },

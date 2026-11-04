@@ -5,7 +5,7 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="Sholat Sigma - Class Prayer Tracker and 3-Photo Activity Documentation App">
+  <meta name="description" content="Sholat Sigma 3D - Class Prayer Tracker and 3-Photo Activity Documentation App">
 
   <!-- iOS meta tags & icons for Add to Home Screen -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16,15 +16,15 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>Sholat Sigma</title>
+  <title>Sholat Sigma 3D</title>
   <link rel="manifest" href="manifest.json">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#0D7C66">
+  <meta name="theme-color" content="#050D10">
 
   <style>
     body {
-      background-color: #0F172A;
+      background-color: #050D10;
       margin: 0;
       padding: 0;
       overflow: hidden;
@@ -39,38 +39,60 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: radial-gradient(circle at center, #1E293B 0%, #0F172A 100%);
+      background: radial-gradient(circle at center, #0D2E28 0%, #050D10 100%);
       color: #FFFFFF;
       transition: opacity 0.5s ease-out;
       z-index: 99999;
     }
+    #particle-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    .loader-card {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 36px;
+      border-radius: 26px;
+      background: rgba(16, 42, 38, 0.55);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(45, 212, 191, 0.35);
+      box-shadow: 0 20px 50px rgba(16, 185, 129, 0.25);
+    }
     .app-logo {
-      width: 76px;
-      height: 76px;
-      border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(13, 124, 102, 0.4);
-      margin-bottom: 24px;
-      border: 2px solid rgba(65, 179, 162, 0.3);
+      width: 78px;
+      height: 78px;
+      border-radius: 22px;
+      box-shadow: 0 0 28px rgba(45, 212, 191, 0.55);
+      margin-bottom: 22px;
+      border: 2px solid rgba(94, 234, 212, 0.45);
     }
     .spinner {
       width: 44px;
       height: 44px;
-      border: 3.5px solid rgba(13, 124, 102, 0.25);
-      border-top-color: #41B3A2;
+      border: 3.5px solid rgba(45, 212, 191, 0.2);
+      border-top-color: #2DD4BF;
       border-radius: 50%;
-      animation: spin 0.9s cubic-bezier(0.6, 0.2, 0.4, 0.8) infinite;
+      animation: spin 0.85s cubic-bezier(0.6, 0.2, 0.4, 0.8) infinite;
     }
     .loading-text {
       margin-top: 18px;
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: 0.8px;
-      color: #E2E8F0;
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      color: #FFFFFF;
+      text-shadow: 0 0 14px rgba(45, 212, 191, 0.6);
     }
     .loading-subtext {
       margin-top: 6px;
       font-size: 12px;
-      color: #94A3B8;
+      color: #99F6E4;
     }
     @keyframes spin {
       to { transform: rotate(360deg); }
@@ -79,20 +101,61 @@
 </head>
 <body>
   <div id="loading-indicator">
-    <img src="icons/Icon-192.png" alt="Logo" class="app-logo">
-    <div class="spinner"></div>
-    <div class="loading-text">SHOLAT SIGMA</div>
-    <div class="loading-subtext">Menyiapkan Jadwal & Dokumentasi...</div>
+    <canvas id="particle-canvas"></canvas>
+    <div class="loader-card">
+      <img src="icons/Icon-192.png" alt="Logo" class="app-logo">
+      <div class="spinner"></div>
+      <div class="loading-text">SHOLAT SIGMA 3D</div>
+      <div class="loading-subtext">Menyiapkan Engine Partikel 3D & Jadwal...</div>
+    </div>
   </div>
 
   <script>
-    window.addEventListener('flutter-first-frame', function () {
-      var loader = document.getElementById('loading-indicator');
-      if (loader) {
-        loader.style.opacity = '0';
-        setTimeout(function() { loader.remove(); }, 500);
+    (function() {
+      var canvas = document.getElementById('particle-canvas');
+      if (!canvas) return;
+      var ctx = canvas.getContext('2d');
+      var w = canvas.width = window.innerWidth;
+      var h = canvas.height = window.innerHeight;
+      var pts = [];
+      for (var i = 0; i < 55; i++) {
+        pts.push({
+          x: (Math.random() - 0.5) * 2,
+          y: (Math.random() - 0.5) * 2,
+          z: 0.2 + Math.random() * 1.8,
+          r: 1.5 + Math.random() * 2.5
+        });
       }
-    });
+      var animId;
+      function draw() {
+        ctx.clearRect(0, 0, w, h);
+        var cx = w / 2, cy = h / 2, scale = Math.max(w, h) * 0.6;
+        for (var i = 0; i < pts.length; i++) {
+          var p = pts[i];
+          p.z -= 0.008;
+          if (p.z <= 0.15) p.z = 2.0;
+          var persp = 1.1 / p.z;
+          var sx = cx + p.x * scale * persp;
+          var sy = cy + p.y * scale * persp;
+          var rad = p.r * persp;
+          var alpha = Math.min(0.9, (2.0 - p.z) * 0.5);
+          ctx.beginPath();
+          ctx.arc(sx, sy, rad, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(45, 212, 191, ' + alpha + ')';
+          ctx.fill();
+        }
+        animId = requestAnimationFrame(draw);
+      }
+      draw();
+      window.addEventListener('flutter-first-frame', function () {
+        cancelAnimationFrame(animId);
+        var loader = document.getElementById('loading-indicator');
+        if (loader) {
+          loader.style.opacity = '0';
+          setTimeout(function() { loader.remove(); }, 500);
+        }
+      });
+    })();
   </script>
 
   {{flutter_bootstrap_js}}

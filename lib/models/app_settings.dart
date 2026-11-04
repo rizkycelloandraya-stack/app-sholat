@@ -37,7 +37,7 @@ class AppSettings {
     this.auto3PhotoMode = true,
     this.autoWhatsAppShare = true,
     this.saveOriginalPhotos = false,
-    this.themeSetting = AppThemeSetting.system,
+    this.themeSetting = AppThemeSetting.dark,
   });
 
   ThemeMode get themeMode {
@@ -120,7 +120,7 @@ class AppSettings {
       autoWhatsAppShare: map['autoWhatsAppShare'] as bool? ?? true,
       saveOriginalPhotos: map['saveOriginalPhotos'] as bool? ?? false,
       themeSetting: AppThemeSetting.values[
-          (map['themeSetting'] as int?)?.clamp(0, AppThemeSetting.values.length - 1) ?? 0],
+          (map['themeSetting'] as int?)?.clamp(0, AppThemeSetting.values.length - 1) ?? 2],
     );
   }
 
