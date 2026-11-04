@@ -52,7 +52,9 @@ class _DocumentationScreenState extends State<DocumentationScreen> {
     try {
       final picked = await _imagePicker.pickImage(
         source: source,
-        imageQuality: 90,
+        maxWidth: 1280,
+        maxHeight: 1280,
+        imageQuality: 82,
       );
 
       if (picked != null && mounted) {

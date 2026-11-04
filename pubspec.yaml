@@ -21,7 +21,6 @@ dependencies:
   geocoding: ^3.0.0
 
   # Camera & Image Capture
-  camera: ^0.11.0+2
   image_picker: ^1.1.2
 
   # Image processing & collage generation

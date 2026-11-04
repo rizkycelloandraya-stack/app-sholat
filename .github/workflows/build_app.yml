@@ -31,10 +31,11 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Build APK Release
+      - name: Build APK Release (Lightweight & Split ABI)
         run: |
-          flutter build apk --release
-          cp build/app/outputs/flutter-apk/app-release.apk Sholat-Sigma.apk
+          flutter build apk --release --split-per-abi --tree-shake-icons --obfuscate --split-debug-info=build/debug-info
+          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk Sholat-Sigma.apk
+          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk build/app/outputs/flutter-apk/app-release.apk
 
       - name: Upload Android APK Artifact
         uses: actions/upload-artifact@v4
@@ -42,7 +43,8 @@ jobs:
           name: SholatSigma-Android-Release-APK
           path: |
             Sholat-Sigma.apk
-            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+            build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
 
       - name: Publish Android APK to Release
         uses: softprops/action-gh-release@v2
@@ -53,6 +55,7 @@ jobs:
           files: |
             Sholat-Sigma.apk
             build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
 
   build-ios:
     name: Build iOS IPA

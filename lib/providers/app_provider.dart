@@ -59,10 +59,11 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Start real-time ticking countdown timer
+  /// Start lightweight periodic schedule checker (runs every 20s instead of 1s
+  /// so the entire widget tree isn't rebuilt every second)
   void _startCountdownTimer() {
     _countdownTimer?.cancel();
-    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    _countdownTimer = Timer.periodic(const Duration(seconds: 20), (timer) {
       final now = DateTime.now();
 
       // Check if date changed (midnight crossover)
@@ -74,8 +75,9 @@ class AppProvider extends ChangeNotifier {
         return;
       }
 
-      // Update countdown
-      if (_prayerSchedule != null) {
+      // Only recalculate if the next prayer time has just passed
+      final nextTime = _prayerSchedule?.nextPrayer?.time;
+      if (nextTime != null && now.isAfter(nextTime)) {
         _recalculatePrayerSchedule(silentNotifications: true);
       }
     });
