@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/app_settings.dart';
 import '../providers/app_provider.dart';
+import '../providers/documentation_provider.dart';
+import '../services/storage_service.dart';
+import '../widgets/confirm_delete_dialog.dart';
 import '../widgets/particle_3d_background.dart';
 import 'about_screen.dart';
 
@@ -251,6 +254,77 @@ class SettingsScreen extends StatelessWidget {
                       (val) => provider.updateSettings(
                         settings.copyWith(saveOriginalPhotos: val),
                       ),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(
+                        Icons.cleaning_services_rounded,
+                        color: Color(0xFF2DD4BF),
+                      ),
+                      title: const Text(
+                        'Bersihkan Cache & Draft Foto Sementara',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      subtitle: const Text(
+                        'Hapus file foto sementara kamera & bebaskan RAM aplikasi',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      onTap: () async {
+                        await context.read<DocumentationProvider>().reset();
+                        await StorageService.clearTempCache();
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  'Cache kamera & draft foto berhasil dibersihkan!'),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(
+                        Icons.delete_forever_rounded,
+                        color: Colors.redAccent,
+                      ),
+                      title: const Text(
+                        'Hapus Semua Foto & Riwayat Dokumentasi',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: Colors.redAccent,
+                        ),
+                      ),
+                      subtitle: Text(
+                        'Total ${provider.history.length} kolase tersimpan • Ketuk untuk mengosongkan penyimpanan',
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (ctx) => ConfirmDeleteDialog(
+                            title: 'Hapus Semua Foto & Riwayat?',
+                            content:
+                                'Seluruh foto kolase, foto asli, dan cache akan dihapus permanen agar penyimpanan kembali lega.',
+                            onConfirm: () async {
+                              await provider.clearAllHistory();
+                              if (context.mounted) {
+                                await context
+                                    .read<DocumentationProvider>()
+                                    .reset();
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                          'Semua foto & riwayat berhasil dihapus! Penyimpanan bersih.'),
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),

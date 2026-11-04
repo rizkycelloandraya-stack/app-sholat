@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/painting.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -117,8 +118,9 @@ class StorageService {
       final itemToDelete = items.firstWhere((i) => i.id == id);
 
       if (!kIsWeb) {
-        // Delete collage file
+        // Delete collage file & evict from memory cache
         final collageFile = File(itemToDelete.collageImagePath);
+        FileImage(collageFile).evict();
         if (await collageFile.exists()) {
           await collageFile.delete();
         }
@@ -126,6 +128,7 @@ class StorageService {
         // Delete original photos if any
         for (final path in itemToDelete.originalPhotoPaths) {
           final origFile = File(path);
+          FileImage(origFile).evict();
           if (await origFile.exists()) {
             await origFile.delete();
           }
@@ -135,6 +138,103 @@ class StorageService {
       items.removeWhere((i) => i.id == id);
       await _writeHistoryList(items);
     } catch (_) {}
+  }
+
+  /// Delete all documentation history items, collages, original photos, and temp cache
+  static Future<void> deleteAllHistoryAndPhotos() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_historyKey);
+
+      if (!kIsWeb) {
+        final appDir = await getApplicationDocumentsDirectory();
+
+        final historyFile = File('${appDir.path}/$_historyFileName');
+        if (await historyFile.exists()) {
+          await historyFile.delete();
+        }
+
+        for (final folderName in ['collages', 'originals']) {
+          final dir = Directory('${appDir.path}/$folderName');
+          if (dir.existsSync()) {
+            for (final entity in dir.listSync()) {
+              if (entity is File) {
+                try {
+                  FileImage(entity).evict();
+                  await entity.delete();
+                } catch (_) {}
+              }
+            }
+          }
+        }
+
+        await clearTempCache();
+      }
+
+      PaintingBinding.instance.imageCache.clear();
+      PaintingBinding.instance.imageCache.clearLiveImages();
+    } catch (_) {}
+  }
+
+  /// Delete temporary camera/image_picker cache files and clear RAM image cache
+  static Future<void> clearTempCache() async {
+    try {
+      if (!kIsWeb) {
+        final tempDir = await getTemporaryDirectory();
+        if (tempDir.existsSync()) {
+          for (final entity in tempDir.listSync()) {
+            if (entity is File) {
+              try {
+                await entity.delete();
+              } catch (_) {}
+            }
+          }
+        }
+      }
+      PaintingBinding.instance.imageCache.clear();
+      PaintingBinding.instance.imageCache.clearLiveImages();
+    } catch (_) {}
+  }
+
+  /// Calculate total storage bytes used by collages, originals, draft_slots, and temp cache
+  static Future<int> calculateTotalStorageBytes() async {
+    if (kIsWeb) return 0;
+    int totalBytes = 0;
+    try {
+      final appDir = await getApplicationDocumentsDirectory();
+      for (final folderName in ['collages', 'originals', 'draft_slots']) {
+        final dir = Directory('${appDir.path}/$folderName');
+        if (dir.existsSync()) {
+          for (final entity in dir.listSync()) {
+            if (entity is File) {
+              try {
+                totalBytes += await entity.length();
+              } catch (_) {}
+            }
+          }
+        }
+      }
+      final tempDir = await getTemporaryDirectory();
+      if (tempDir.existsSync()) {
+        for (final entity in tempDir.listSync()) {
+          if (entity is File) {
+            try {
+              totalBytes += await entity.length();
+            } catch (_) {}
+          }
+        }
+      }
+    } catch (_) {}
+    return totalBytes;
+  }
+
+  /// Format byte count into human-readable KB / MB
+  static String formatBytes(int bytes) {
+    if (bytes <= 0) return '0 KB';
+    if (bytes < 1024 * 1024) {
+      return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    }
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(2)} MB';
   }
 
   static Future<void> _writeHistoryList(List<DocumentationItem> items) async {
@@ -227,10 +327,47 @@ class StorageService {
       final targetPath =
           '${draftDir.path}/${prefix}${DateTime.now().millisecondsSinceEpoch}.jpg';
       final savedFile = await sourceFile.copy(targetPath);
+
+      // Remove original temporary camera file from cache so storage isn't duplicated
+      try {
+        if (sourcePath.contains('cache') || sourcePath.contains('tmp')) {
+          await sourceFile.delete();
+        }
+      } catch (_) {}
+
       return savedFile.path;
     } catch (_) {
       return sourcePath;
     }
+  }
+
+  /// Delete a single draft slot photo file from disk and evict from RAM cache
+  static Future<void> deleteDraftSlotPhoto(
+      int slotIndex, String? filePath) async {
+    if (kIsWeb) return;
+    try {
+      if (filePath != null && filePath.isNotEmpty) {
+        final f = File(filePath);
+        FileImage(f).evict();
+        if (await f.exists()) {
+          await f.delete();
+        }
+      }
+      final appDir = await getApplicationDocumentsDirectory();
+      final draftDir = Directory('${appDir.path}/draft_slots');
+      if (draftDir.existsSync()) {
+        final prefix = 'draft_slot_${slotIndex}_';
+        for (final entity in draftDir.listSync()) {
+          if (entity is File &&
+              entity.path.split(Platform.pathSeparator).last.startsWith(prefix)) {
+            try {
+              FileImage(entity).evict();
+              await entity.delete();
+            } catch (_) {}
+          }
+        }
+      }
+    } catch (_) {}
   }
 
   /// Save in-progress draft session (3 prayer photo slots + form fields)

@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/documentation_item.dart';
 import '../providers/app_provider.dart';
+import '../providers/documentation_provider.dart';
 import '../services/sharing_service.dart';
 import '../utils/time_utils.dart';
 import '../widgets/collage_preview_widget.dart';
+import '../widgets/confirm_delete_dialog.dart';
 import '../widgets/particle_3d_background.dart';
 
 class PreviewScreen extends StatefulWidget {
@@ -250,6 +252,45 @@ class _PreviewScreenState extends State<PreviewScreen> {
                   Navigator.of(context).popUntil((route) => route.isFirst);
                 },
                 child: const Text('SELESAI & KEMBALI KE BERANDA'),
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // Delete Photo & Free Storage button
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => ConfirmDeleteDialog(
+                      title: 'Hapus Foto & Hemat Memori?',
+                      content:
+                          'File kolase dan 3 foto sesi ini akan dihapus dari penyimpanan perangkat.',
+                      onConfirm: () async {
+                        await context
+                            .read<AppProvider>()
+                            .deleteHistoryItem(_currentItem.id);
+                        await context.read<DocumentationProvider>().reset();
+                        if (context.mounted) {
+                          Navigator.of(context)
+                              .popUntil((route) => route.isFirst);
+                        }
+                      },
+                    ),
+                  );
+                },
+                icon: const Icon(
+                  Icons.delete_outline_rounded,
+                  color: Colors.redAccent,
+                ),
+                label: const Text(
+                  'HAPUS FOTO INI & HEMAT PENYIMPANAN',
+                  style: TextStyle(color: Colors.redAccent),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.redAccent, width: 1.2),
+                ),
               ),
             ),
             const SizedBox(height: 32),

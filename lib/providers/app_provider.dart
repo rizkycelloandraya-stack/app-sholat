@@ -147,6 +147,12 @@ class AppProvider extends ChangeNotifier {
     await refreshHistory();
   }
 
+  /// Delete all history items and clean up all stored photos
+  Future<void> clearAllHistory() async {
+    await StorageService.deleteAllHistoryAndPhotos();
+    await refreshHistory();
+  }
+
   /// Update an existing history item
   Future<void> updateHistoryItem(DocumentationItem item) async {
     await StorageService.updateDocumentationItem(item);

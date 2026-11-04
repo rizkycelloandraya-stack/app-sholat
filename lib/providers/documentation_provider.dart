@@ -147,11 +147,13 @@ class DocumentationProvider extends ChangeNotifier {
     await _persistDraft();
   }
 
-  /// Remove photo from a specific slot
+  /// Remove photo from a specific slot and delete its file from storage
   Future<void> removePhotoForSlot(int slotIndex) async {
     if (slotIndex >= 0 && slotIndex <= 2) {
+      final oldPath = _slots[slotIndex]?.filePath;
       _slots[slotIndex] = null;
       notifyListeners();
+      await StorageService.deleteDraftSlotPhoto(slotIndex, oldPath);
       await _persistDraft();
     }
   }
@@ -171,8 +173,10 @@ class DocumentationProvider extends ChangeNotifier {
   Future<void> retakeLastPhoto() async {
     for (int i = 2; i >= 0; i--) {
       if (_slots[i] != null) {
+        final oldPath = _slots[i]?.filePath;
         _slots[i] = null;
         notifyListeners();
+        await StorageService.deleteDraftSlotPhoto(i, oldPath);
         await _persistDraft();
         break;
       }
